@@ -1,0 +1,140 @@
+.menu-page {
+  width: 100vw;
+  height: 100vh;
+  background-image: url("../assets/orderpage.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #ffb347;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-family: "Poppins", sans-serif;
+}
+
+
+.menu-container {
+  flex: 1;
+  margin-left: 250px;
+  text-align: center;
+  color: white;
+}
+
+.menu-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #fff7e8;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  justify-items: center;
+  padding: 40px;
+}
+
+
+.menu-card {
+    width: 340px;         
+    height: 280px;        
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
+  }
+  
+  .menu-card:hover {
+    transform: translateY(-10px);
+  }
+  
+  .menu-card img {
+    width: 100%;
+    height: 70%;         
+    object-fit: cover;
+  }
+  
+  .menu-info {
+    padding: 8px 10px;
+    display: flex;             
+    flex-direction: column;   
+    align-items: center;        
+    justify-content: center;    
+    height: 30%;                
+  }
+  
+
+  
+  .price {
+    color: #ffd27f;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+  
+
+
+.back-btn {
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  padding: 12px 28px;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(1.05);
+}
+
+.menu-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px; 
+    margin-bottom: 6px;
+  }
+  
+  .menu-header h3 {
+    font-size: 1.1rem;
+    color: #fffaf0;
+    margin: 0;
+  }
+  
+  .price {
+    color: #ffd27f;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+  
+ 
+ .add-btn {
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid #ffd27f;
+    color: #fff9e6;
+    font-weight: 500;
+    font-size: 0.85rem;
+    padding: 5px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.25s ease;
+    margin-top: 4px;  
+  }
+  
+  
+  .add-btn:hover {
+    background: #ffd27f;
+    color: #333;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  
