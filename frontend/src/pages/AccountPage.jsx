@@ -15,7 +15,7 @@ export default function AccountPage() {
 
  
   const handleSignOut = () => {
-    localStorage.removeItem("currentUser"); /
+    localStorage.removeItem("currentUser"); 
     alert("👋 You have signed out successfully!");
     navigate("/"); 
   };
