@@ -32,7 +32,7 @@
  
   .menu-item:hover {
     background: rgba(255, 255, 255, 0.18);
-    box-shadow: 0 0 15px rgba(255, 200, 80, 0.25); /* ✅ 柔光，不刺眼 */
+    box-shadow: 0 0 15px rgba(255, 200, 80, 0.25);
     transform: translateY(-2px) scale(1.03);
   
     

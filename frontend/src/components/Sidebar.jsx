@@ -5,12 +5,12 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  // ✅ 登录页或注册页隐藏 Sidebar
+
   if (pathname === "/" || pathname === "/signup") return null;
 
-  // ✅ 判断当前路径是否高亮
+  
   const isActive = (to) => {
-    if (to === "/restaurants") return pathname === "/restaurants";
+    if (to === "/home") return pathname === "/home";
     if (to === "/menu") return pathname.startsWith("/menu/");
     return pathname === to;
   };
@@ -19,16 +19,40 @@ export default function Sidebar() {
 
   return (
     <div className="mini-sidebar">
-      <div className={cls("/restaurants")} onClick={() => navigate("/restaurants")}>
+      
+      <div
+        className={cls("/home")}
+        onClick={() => {
+          if (pathname !== "/home") navigate("/home");
+        }}
+      >
         🏠 Home
       </div>
-      <div className={cls("/orders")} onClick={() => navigate("/orders")}>
+
+      <div
+        className={cls("/orders")}
+        onClick={() => {
+          if (pathname !== "/orders") navigate("/orders");
+        }}
+      >
         🧾 Orders
       </div>
-      <div className={cls("/cart")} onClick={() => navigate("/cart")}>
+
+      <div
+        className={cls("/cart")}
+        onClick={() => {
+          if (pathname !== "/cart") navigate("/cart");
+        }}
+      >
         🛒 Cart
       </div>
-      <div className={cls("/account")} onClick={() => navigate("/account")}>
+
+      <div
+        className={cls("/account")}
+        onClick={() => {
+          if (pathname !== "/account") navigate("/account");
+        }}
+      >
         👤 Account
       </div>
     </div>

@@ -1,9 +1,6 @@
-// src/pages/LoginPage.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../App.css"; // 
-import SignInButton from "../components/SignInButton.jsx";
-import SignUpButton from "../components/SignUpButton.jsx";
+import "./LoginPage.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -12,7 +9,7 @@ export default function LoginPage() {
 
   const handleLogin = () => {
     if (username && password) {
-      navigate("/restaurants"); // 
+      navigate("/home");
     } else {
       alert("Please enter username and password");
     }
@@ -37,9 +34,12 @@ export default function LoginPage() {
         />
 
         <div className="button-row">
-          
-          <SignInButton onClick={handleLogin} />
-          <SignUpButton />
+          <button className="login-btn" onClick={handleLogin}>
+            Sign In
+          </button>
+          <button className="signup-btn" onClick={() => navigate("/signup")}>
+            Sign Up
+          </button>
         </div>
       </div>
     </div>

@@ -1,11 +1,10 @@
-// src/pages/RestaurantSelection.jsx
+// src/pages/HomePage.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
 import orderBg from "../assets/orderpage.png";
-import "./RestaurantSelection.css";
+import "./HomePage.css";
 
-export default function RestaurantSelection() {
+export default function HomePage() {
   const [searchText, setSearchText] = useState("");
   const [address, setAddress] = useState("Getting your location...");
   const navigate = useNavigate();
@@ -32,7 +31,6 @@ export default function RestaurantSelection() {
     }
   }, []);
 
- 
   const restaurants = [
     { id: 1, name: "Sushi Zen", img: "/src/assets/test.png", rating: 4.8 },
     { id: 2, name: "Pasta House", img: "/src/assets/restaurant2.jpg", rating: 4.6 },
@@ -44,7 +42,7 @@ export default function RestaurantSelection() {
 
   return (
     <div className="orders-page" style={{ backgroundImage: `url(${orderBg})` }}>
-      <Sidebar />
+     
 
       <div className="main-content">
         <div className="top-bar">
@@ -70,10 +68,7 @@ export default function RestaurantSelection() {
               className="restaurant-card"
               onClick={() => navigate(`/menu/${r.id}`)}
             >
-              
               <img src={r.img} alt={r.name} />
-
-              
               <div className="restaurant-text">
                 <h3>{r.name}</h3>
                 <p className="rating">⭐ {r.rating} Google rating</p>
