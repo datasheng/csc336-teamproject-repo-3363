@@ -33,11 +33,11 @@ export default function HomePage() {
 
   const restaurants = [
     { id: 1, name: "Sushi Zen", img: "/src/assets/test.png", rating: 4.8 },
-    { id: 2, name: "Pasta House", img: "/src/assets/restaurant2.jpg", rating: 4.6 },
-    { id: 3, name: "Burger Hub", img: "/src/assets/restaurant3.jpg", rating: 4.5 },
-    { id: 4, name: "Spicy Garden", img: "/src/assets/restaurant4.jpg", rating: 4.9 },
-    { id: 5, name: "Vegan Paradise", img: "/src/assets/restaurant5.jpg", rating: 4.4 },
-    { id: 6, name: "Seafood Bay", img: "/src/assets/restaurant6.jpg", rating: 4.7 },
+    { id: 2, name: "Pasta House", img: "/src/assets/pastaHouse.jpg", rating: 4.6 },
+    { id: 3, name: "Burger Hub", img: "/src/assets/burger.jpg", rating: 4.5 },
+    { id: 4, name: "Spicy Garden", img: "/src/assets/spicyGarden.jpeg", rating: 4.9 },
+    { id: 5, name: "Vegan Paradise", img: "/src/assets/VeganParadise.jpg", rating: 4.4 },
+    { id: 6, name: "Seafood Bay", img: "/src/assets/Seafood.jpg", rating: 4.7 },
   ];
 
   return (

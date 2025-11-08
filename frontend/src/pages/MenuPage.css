@@ -24,7 +24,7 @@
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 30px;
-  color: #fff7e8;
+  color: #000;
   text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -65,13 +65,13 @@
     flex-direction: column;   
     align-items: center;        
     justify-content: center;    
-    height: 30%;                
+    height: 30%;
   }
   
 
   
   .price {
-    color: #ffd27f;
+    color: #21201e;
     font-weight: bold;
     font-size: 1rem;
   }
@@ -105,12 +105,12 @@
   
   .menu-header h3 {
     font-size: 1.1rem;
-    color: #fffaf0;
+    color: #111010;
     margin: 0;
   }
   
   .price {
-    color: #ffd27f;
+    color: #8c5d3c;
     font-weight: bold;
     font-size: 1rem;
   }
@@ -119,7 +119,7 @@
  .add-btn {
     background: rgba(255, 255, 255, 0.25);
     border: 1px solid #ffd27f;
-    color: #fff9e6;
+    color: #141413;
     font-weight: 500;
     font-size: 0.85rem;
     padding: 5px 14px;
