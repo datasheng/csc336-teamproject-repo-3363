@@ -44,6 +44,10 @@
     background: rgba(255, 255, 255, 0.22);
     border: 1px solid rgba(255, 240, 200, 0.4);
     transform: scale(1.05);
-    color: #ffe699;
+    color: #5985dc;
   }
+
+.mini-sidebar div{
+    color: #ff6b6b;
+}
   
