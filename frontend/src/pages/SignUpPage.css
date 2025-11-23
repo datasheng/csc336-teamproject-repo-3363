@@ -1,0 +1,133 @@
+.signup-page {
+    width: 100%;
+    height: 100vh;
+    background-image: url("../assets/orderpage.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .signup-container {
+    width: 90%;
+    max-width: 420px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 40px 45px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    color: #222;
+  }
+  
+  .signup-container h1 {
+    font-size: 2rem;
+    color: #ff7a00;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 25px;
+  }
+  
+
+  .signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  
+  .input-group {
+    text-align: left;
+  }
+  
+  .input-group label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+    display: block;
+    color: #444;
+  }
+  
+  .input-group input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(255, 172, 28, 0.5);
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    outline: none;
+    color: #222;
+    transition: 0.3s;
+  }
+  
+  .input-group input:focus {
+    border-color: #ffb347;
+    box-shadow: 0 0 6px rgba(255, 179, 71, 0.4);
+  }
+  
+
+  .password-hint {
+    font-size: 0.85rem;
+    margin-top: 5px;
+    font-weight: 500;
+  }
+  .password-hint.weak {
+    color: #ff4d4d;
+  }
+  .password-hint.medium {
+    color: #ffb347;
+  }
+  .password-hint.strong {
+    color: #4caf50;
+  }
+  
+
+  .error-text {
+    color: #ff4d4d;
+    font-size: 0.9rem;
+    margin-top: -5px;
+  }
+  
+
+  .signup-btn {
+    background: linear-gradient(135deg, #ffb347, #ffcc33);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 15px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s ease;
+  }
+  
+  .signup-btn:hover {
+    background: linear-gradient(135deg, #ff9f1a, #ffc107);
+    transform: scale(1.05);
+  }
+  
+
+  .login-link {
+    margin-top: 20px;
+    font-size: 0.95rem;
+    color: #555;
+  }
+  
+  .login-link span {
+    color: #ff7a00;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .login-link span:hover {
+    text-decoration: underline;
+  }
+  

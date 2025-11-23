@@ -1,0 +1,13 @@
+# /backend/requirements.txt
+
+# --- Core Web Framework ---
+flask
+
+# --- Database Driver (No ORM) ---
+# Used to connect to MySQL and execute raw SQL
+PyMySQL
+
+# --- Utilities ---
+# Handles Cross-Origin Resource Sharing (CORS) for frontend(React)-to-backend(Flask) requests
+flask-cors
+cryptography
