@@ -164,8 +164,8 @@ CREATE TABLE deliveries (
 
 -- Users
 INSERT INTO users (usrpwd, usrLastName, usrFirstName, usrRole, emailAddr) VALUES
-('owner1', 'owner', 'owner', 'admin', 'owner@snapeats.local');
-('cust1', 'cust1', 'cust1', 'customer', 'cust1@example.com'),
+('owner1', 'owner', 'owner', 'admin', 'owner@snapeats.local'),
+('cust1', 'cust1', 'cust1', 'customer', 'cust1@example.com');
 
 
 -- Sample payment for customer
