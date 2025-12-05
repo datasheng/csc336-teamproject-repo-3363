@@ -1,76 +1,118 @@
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import "./MenuPage.css";
 import orderBg from "../assets/orderpage.png";
+import { fetchJSON } from "../api";
+import usePageTitle from "../hooks/usePageTitle";
+
+function MenuItemCard({ item, restID, restName }) {
+  const [qty, setQty] = useState(1);
+
+  const handleAdd = () => {
+    const currentCart = JSON.parse(localStorage.getItem("snapEats_cart") || "[]");
+    const existingIndex = currentCart.findIndex((i) => i.id === item.id);
+    
+    if (existingIndex > -1) {
+      currentCart[existingIndex].quantity += qty;
+    } else {
+      currentCart.push({ ...item, quantity: qty, restID, restName });
+    }
+    
+    localStorage.setItem("snapEats_cart", JSON.stringify(currentCart));
+    alert(`Added ${qty} x ${item.name} to cart`);
+    setQty(1); // reset
+  };
+
+  return (
+    <div className="menu-card">
+      <div className="img-container">
+        <img src={item.img} alt={item.name} />
+      </div>
+      <div className="menu-info">
+        <div className="menu-header">
+          <h3>{item.name}</h3>
+          <span className="price">${Number(item.price).toFixed(2)}</span>
+        </div>
+        <p className="item-desc">{item.description}</p>
+        
+        <div className="actions-row">
+            <div className="qty-control">
+                <button onClick={() => setQty(Math.max(1, qty - 1))}>-</button>
+                <span>{qty}</span>
+                <button onClick={() => setQty(qty + 1)}>+</button>
+            </div>
+            <button className="add-btn" onClick={handleAdd}>🛒 Add</button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function MenuPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const menus = {
-    1: {
-      name: "Sushi Zen 🍣",
-      items: [
-        { name: "Salmon Nigiri", price: "$12", img: new URL("../assets/test2.png", import.meta.url).href },
-        { name: "Tuna Roll", price: "$10", img: new URL("../assets/tunaroll.webp", import.meta.url).href },
-        { name: "Dragon Roll", price: "$15", img: new URL("../assets/dragonRoll.jpg", import.meta.url).href },
-        { name: "Miso Soup", price: "$5", img: new URL("../assets/misoSoup.webp", import.meta.url).href },
-      ],
-    },
-    2: {
-      name: "Pasta House 🍝",
-      items: [
-        { name: "Carbonara", price: "$14", img: new URL("../assets/carbonara.jpg", import.meta.url).href },
-        { name: "Alfredo", price: "$13", img: new URL("../assets/alfredo.webp", import.meta.url).href },
-        { name: "Lasagna", price: "$16", img: new URL("../assets/lasagna.jpg", import.meta.url).href },
-        { name: "Garlic Bread", price: "$5", img: new URL("../assets/garlicBread.jpeg", import.meta.url).href },
-      ],
-    },
-    3: {
-      name: "Burger Hub 🍔",
-      items: [
-        { name: "Cheeseburger", price: "$11", img: new URL("../assets/chesseBurger.webp", import.meta.url).href },
-        { name: "Bacon Burger", price: "$13", img: new URL("../assets/baconBurger.jpg", import.meta.url).href },
-        { name: "Veggie Burger", price: "$10", img: new URL("../assets/veggieBurger.jpeg", import.meta.url).href },
-        { name: "French Fries", price: "$4", img: new URL("../assets/frenchFries.webp", import.meta.url).href },
-      ],
-    },
-    4: {
-      name: "Spicy Garden 🌶️",
-      items: [
-        { name: "Kung Pao Chicken", price: "$12", img: new URL("../assets/KungPao.webp", import.meta.url).href },
-        { name: "Mapo Tofu", price: "$11", img: new URL("../assets/MapoTofu.jpeg", import.meta.url).href },
-        { name: "Hotpot", price: "$20", img: new URL("../assets/hotPot.jpg", import.meta.url).href },
-        { name: "Spring Rolls", price: "$6", img: new URL("../assets/springrolls.avif", import.meta.url).href },
-      ],
-    },
-    5: {
-      name: "Vegan Paradise 🥗",
-      items: [
-        { name: "Avocado Salad", price: "$10", img: new URL("../assets/avocadosalad.jpg", import.meta.url).href },
-        { name: "Vegan Burger", price: "$12", img: new URL("../assets/veggieBurger.jpeg", import.meta.url).href },
-        { name: "Tofu Bowl", price: "$11", img: new URL("../assets/tofubowl.jpg", import.meta.url).href },
-        { name: "Coconut Smoothie", price: "$6", img: new URL("../assets/coconutsmoothie.jpg", import.meta.url).href },
-      ],
-    },
-    6: {
-      name: "Seafood Bay 🦞",
-      items: [
-        { name: "Grilled Salmon", price: "$18", img: new URL("../assets/salmon.webp", import.meta.url).href },
-        { name: "Shrimp Pasta", price: "$16", img: new URL("../assets/shrimppasta.jpg", import.meta.url).href },
-        { name: "Lobster Tail", price: "$25", img: new URL("../assets/lobstertail.jpg", import.meta.url).href },
-        { name: "Seafood Chowder", price: "$9", img: new URL("../assets/seafoodchowder.jpg", import.meta.url).href },
-      ],
-    },
-  };
+  const [restaurant, setRestaurant] = useState(null);
+  const [items, setItems] = useState([]);
 
-  const restaurant = menus[id];
+  usePageTitle(restaurant ? `SnapEats - ${restaurant.name}` : "SnapEats - Menu");
+
+  useEffect(() => {
+    const itemToImg = (name) => {
+      const map = {
+        "Salmon Nigiri": new URL("../assets/test2.png", import.meta.url).href,
+        "Tuna Roll": new URL("../assets/tunaroll.webp", import.meta.url).href,
+        "Dragon Roll": new URL("../assets/dragonRoll.jpg", import.meta.url).href,
+        "Miso Soup": new URL("../assets/misoSoup.webp", import.meta.url).href,
+        "Carbonara": new URL("../assets/carbonara.jpg", import.meta.url).href,
+        "Alfredo": new URL("../assets/alfredo.webp", import.meta.url).href,
+        "Lasagna": new URL("../assets/lasagna.jpg", import.meta.url).href,
+        "Garlic Bread": new URL("../assets/garlicBread.jpeg", import.meta.url).href,
+        "Cheeseburger": new URL("../assets/chesseBurger.webp", import.meta.url).href,
+        "Bacon Burger": new URL("../assets/baconBurger.jpg", import.meta.url).href,
+        "Veggie Burger": new URL("../assets/veggieBurger.jpeg", import.meta.url).href,
+        "French Fries": new URL("../assets/frenchFries.webp", import.meta.url).href,
+        "Kung Pao Chicken": new URL("../assets/KungPao.webp", import.meta.url).href,
+        "Mapo Tofu": new URL("../assets/MapoTofu.jpeg", import.meta.url).href,
+        "Hotpot": new URL("../assets/hotPot.jpg", import.meta.url).href,
+        "Spring Rolls": new URL("../assets/springRolls.avif", import.meta.url).href,
+        "Avocado Salad": new URL("../assets/avocadosalad.jpg", import.meta.url).href,
+        "Vegan Burger": new URL("../assets/veggieBurger.jpeg", import.meta.url).href,
+        "Tofu Bowl": new URL("../assets/tofubowl.jpg", import.meta.url).href,
+        "Coconut Smoothie": new URL("../assets/coconutsmoothie.jpg", import.meta.url).href,
+        "Grilled Salmon": new URL("../assets/salmon.webp", import.meta.url).href,
+        "Shrimp Pasta": new URL("../assets/shrimppasta.jpg", import.meta.url).href,
+        "Lobster Tail": new URL("../assets/lobstertail.jpg", import.meta.url).href,
+        "Seafood Chowder": new URL("../assets/seafoodchowder.jpg", import.meta.url).href,
+      };
+      return map[name] || new URL("../assets/test2.png", import.meta.url).href;
+    };
+
+    (async () => {
+      try {
+        const [rest, menuItems] = await Promise.all([
+          fetchJSON(`/restaurants/${id}`),
+          fetchJSON(`/restaurants/${id}/menu`),
+        ]);
+        setRestaurant(rest);
+        setItems(
+          menuItems.map((it) => ({
+            ...it,
+            img: itemToImg(it.name),
+          }))
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  }, [id]);
 
   if (!restaurant) {
     return (
       <div className="menu-page">
         <h2>Restaurant not found</h2>
-        <button onClick={() => navigate("/orders")}>⬅ Back</button>
+        <button onClick={() => navigate("/home")}>⬅ Back</button>
       </div>
     );
   }
@@ -80,24 +122,20 @@ export default function MenuPage() {
       <Sidebar />
 
       <div className="menu-container">
-        <h1 className="menu-title">{restaurant.name}</h1>
+        <div className="restaurant-header">
+            <h1 className="menu-title">{restaurant.name}</h1>
+            <div className="restaurant-details" style={{ fontSize: '1.2em', color: '#555', marginBottom: '20px' }}>
+                <p>📍 {restaurant.loc} &emsp; &emsp; 📞 {restaurant.tel}</p>
+            </div>
+        </div>
 
         <div className="menu-grid">
-          {restaurant.items.map((item, index) => (
-            <div className="menu-card" key={index}>
-              <img src={item.img} alt={item.name} />
-              <div className="menu-info">
-                <div className="menu-header">
-                  <h3>{item.name}</h3>
-                  <span className="price">{item.price}</span>
-                </div>
-                <button className="add-btn">🛒 Add to Order</button>
-              </div>
-            </div>
+          {items.map((item) => (
+            <MenuItemCard key={item.id} item={item} restID={restaurant.id} restName={restaurant.name} />
           ))}
         </div>
 
-        <button className="back-btn" onClick={() => navigate("/orders")}>
+        <button className="back-btn" onClick={() => navigate("/home")}>
           ⬅ Back to Restaurants
         </button>
       </div>

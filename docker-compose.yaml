@@ -1,0 +1,39 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:8081:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: 3363
+      DB_NAME: SnapEats
+      DB_CHARSET: utf8mb4
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 3363
+      MYSQL_DATABASE: SnapEats
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./SnapEats_DB_ini.sql:/docker-entrypoint-initdb.d/1_schema.sql
+
+volumes:
+  mysql_data:

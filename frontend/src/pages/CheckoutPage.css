@@ -1,166 +1,194 @@
 .checkout-page {
-    width: 100%;
+    width: 100vw;
     height: 100vh;
-  
     background-image: url("../assets/orderpage.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
-    background-color: #fdf6ec; 
     display: flex;
-    justify-content: center;
     align-items: center;
-  }
-  
-  .checkout-container {
-    width: 80%;
-    max-width: 900px;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    padding: 50px;
-    border-radius: 25px;
-    color: #222; 
-    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+    justify-content: center;
     font-family: "Poppins", sans-serif;
   }
   
+  .checkout-container {
+    width: 600px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
   
   .checkout-container h1 {
     text-align: center;
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 25px;
-    color: #111;
+    margin-bottom: 30px;
+    color: #222;
   }
   
-
   .section {
-    margin-bottom: 30px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   }
   
   .section h2 {
     font-size: 1.2rem;
-    font-weight: 600;
-    color: #222;
-    margin-bottom: 10px;
-  }
-  
-
-  .info {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 15px;
-    padding: 15px 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+    color: #ffb347;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
   }
   
   .info p {
-    margin: 5px 0;
-    color: #333;
+    margin: 8px 0;
+    color: #444;
   }
-  
-  .edit-btn {
-    background: linear-gradient(135deg, #ffb347, #ffcc33);
-    border: none;
-    color: white;
-    padding: 6px 15px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: 0.3s;
-    margin-top: 10px;
-  }
-  
-  .edit-btn:hover {
-    background: linear-gradient(135deg, #ff9f1a, #ffc107);
-  }
-  
   
   .summary-item {
     display: flex;
     justify-content: space-between;
-    margin: 8px 0;
-    color: #333;
+    margin: 10px 0;
+    color: #555;
+  }
+  
+  hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 15px 0;
   }
   
   .total {
+    font-size: 1.4rem;
+    font-weight: bold;
     text-align: right;
-    font-weight: 700;
-    color: #111;
-    margin-top: 10px;
-    font-size: 1.1rem;
-  }
-  
-
-  .payment-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .payment-options label {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 10px 15px;
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: 0.3s;
     color: #222;
   }
   
-  .payment-options label:hover {
-    background: rgba(255, 255, 255, 1);
+  .payment-options label {
+    display: block;
+    margin: 10px 0;
+    cursor: pointer;
+    font-weight: 500;
   }
   
   .payment-options input {
     margin-right: 10px;
+    transform: scale(1.2);
   }
   
-
   .confirm-btn {
-    display: block;
     width: 100%;
-    background: linear-gradient(135deg, #4caf50, #45a049);
+    background: #28a745;
     color: white;
     border: none;
-    padding: 12px;
-    border-radius: 15px;
-    font-size: 1rem;
-    font-weight: 600;
+    padding: 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: 10px;
   }
   
   .confirm-btn:hover {
-    background: linear-gradient(135deg, #43a047, #388e3c);
+    background: #218838;
     transform: scale(1.02);
   }
 
-.tip-input {
-    margin: 10px 0;
-    text-align: right;
+  .confirm-btn.disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
   }
-  
-  .tip-input label {
-    font-weight: 500;
-    color: #333;
+
+  .edit-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-top: 5px;
   }
-  
-  .tip-input input {
-    width: 80px;
-    margin-left: 5px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 5px 8px;
-    font-size: 1rem;
-    text-align: right;
-    outline: none;
-    transition: all 0.3s ease;
+
+  .btn-row-small {
+      display: flex;
+      gap: 10px;
   }
-  
-  .tip-input input:focus {
-    border-color: #ffb347;
-    box-shadow: 0 0 4px rgba(255, 179, 71, 0.4);
+
+  /* Modal Styles */
+  .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
   }
-  
+
+  .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      width: 400px;
+      max-height: 60vh;
+      display: flex;
+      flex-direction: column;
+  }
+
+  .modal-content h3 {
+      margin-top: 0;
+      color: #333;
+  }
+
+  .select-list {
+      list-style: none;
+      padding: 0;
+      margin: 15px 0;
+      overflow-y: auto;
+      flex: 1;
+  }
+
+  .select-list li {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+  }
+
+  .select-list li:hover {
+      background: #f0f8ff;
+  }
+
+  .select-list li.selected {
+      background: #e6f3ff;
+      font-weight: bold;
+      border-left: 4px solid #007bff;
+  }
+
+  .modal-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+  }
+
+  .modal-actions button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #eee;
+  }
+
+  .modal-actions button:first-child {
+      background: #ffb347;
+      color: white;
+  }

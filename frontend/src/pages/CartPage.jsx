@@ -1,23 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CartPage.css";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function CartPage() {
+  usePageTitle("SnapEats - Cart");
   const navigate = useNavigate();
+  const [cart, setCart] = useState([]);
+  const [selectedIds, setSelectedIds] = useState(new Set());
 
-  const [cart, setCart] = useState([
-    { id: 1, name: "Salmon Roll", price: 12.5, quantity: 2 },
-    { id: 2, name: "Miso Soup", price: 4.5, quantity: 1 },
-    { id: 3, name: "Spicy Tuna", price: 14.0, quantity: 1 },
-  ]);
+  useEffect(() => {
+    const stored = localStorage.getItem("snapEats_cart");
+    if (stored) {
+        const parsed = JSON.parse(stored);
+        setCart(parsed);
+        // Default select all? Or none? Let's select none to force choice, or all.
+        // setSelectedIds(new Set(parsed.map(i => i.id)));
+    }
+  }, []);
+
+  const updateCart = (newCart) => {
+    setCart(newCart);
+    localStorage.setItem("snapEats_cart", JSON.stringify(newCart));
+    // Remove deleted items from selection
+    const newIds = new Set(newCart.map(i => i.id));
+    setSelectedIds(prev => {
+        const next = new Set();
+        prev.forEach(id => { if(newIds.has(id)) next.add(id); });
+        return next;
+    });
+  };
 
   const handleRemove = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+    updateCart(cart.filter((item) => item.id !== id));
   };
 
   const handleQuantityChange = (id, delta) => {
-    setCart((prev) =>
-      prev.map((item) =>
+    updateCart(
+      cart.map((item) =>
         item.id === id
           ? { ...item, quantity: Math.max(item.quantity + delta, 1) }
           : item
@@ -25,7 +45,40 @@ export default function CartPage() {
     );
   };
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const toggleSelect = (id) => {
+    const newSet = new Set(selectedIds);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelectedIds(newSet);
+  };
+
+  const handleCheckout = () => {
+    const selectedItems = cart.filter(i => selectedIds.has(i.id));
+    if (selectedItems.length === 0) {
+        alert("Please select items to checkout.");
+        return;
+    }
+
+    const restIds = new Set(selectedItems.map(i => i.restID));
+    if (restIds.size > 1) {
+        alert("Please order from only one restaurant at a time.");
+        return;
+    }
+
+    navigate("/checkout", { state: { items: selectedItems } });
+  };
+
+  // Group by Restaurant
+  const groups = cart.reduce((acc, item) => {
+    const rid = item.restID || "unknown";
+    if (!acc[rid]) acc[rid] = { name: item.restName || "Unknown Restaurant", items: [] };
+    acc[rid].items.push(item);
+    return acc;
+  }, {});
+
+  const total = cart
+    .filter(i => selectedIds.has(i.id))
+    .reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
 
   return (
     <div className="cart-page">
@@ -37,38 +90,49 @@ export default function CartPage() {
         ) : (
           <>
             <div className="cart-items">
-              {cart.map((item) => (
-                <div key={item.id} className="cart-item">
-                  <div className="item-info">
-                    <h3>{item.name}</h3>
-                    <p>${item.price.toFixed(2)}</p>
-                  </div>
-                  <div className="item-actions">
-                    <button onClick={() => handleQuantityChange(item.id, -1)}>
-                      −
-                    </button>
-                    <span>{item.quantity}</span>
-                    <button onClick={() => handleQuantityChange(item.id, 1)}>
-                      ＋
-                    </button>
-                    <button
-                      className="remove-btn"
-                      onClick={() => handleRemove(item.id)}
-                    >
-                      ✕
-                    </button>
-                  </div>
+              {Object.keys(groups).map(rid => (
+                <div key={rid} className="restaurant-group">
+                    <h3 className="group-title">{groups[rid].name}</h3>
+                    {groups[rid].items.map((item) => (
+                        <div key={item.id} className="cart-item">
+                        <div className="checkbox-col">
+                            <input 
+                                type="checkbox" 
+                                checked={selectedIds.has(item.id)} 
+                                onChange={() => toggleSelect(item.id)}
+                            />
+                        </div>
+                        <div className="item-info">
+                            <h3>{item.name}</h3>
+                            <p>${Number(item.price).toFixed(2)}</p>
+                        </div>
+                        <div className="item-actions">
+                            <button onClick={() => handleQuantityChange(item.id, -1)}>
+                            −
+                            </button>
+                            <span>{item.quantity}</span>
+                            <button onClick={() => handleQuantityChange(item.id, 1)}>
+                            ＋
+                            </button>
+                            <button
+                            className="remove-btn"
+                            onClick={() => handleRemove(item.id)}
+                            >
+                            ✕
+                            </button>
+                        </div>
+                        </div>
+                    ))}
                 </div>
               ))}
             </div>
 
             <div className="cart-summary">
-              <p className="total">Total: ${total.toFixed(2)}</p>
-
+              <p className="total">Total (Selected): ${total.toFixed(2)}</p>
               
               <button
                 className="checkout-btn"
-                onClick={() => navigate("/checkout", { state: { cart } })}
+                onClick={handleCheckout}
               >
                 Proceed to Checkout
               </button>

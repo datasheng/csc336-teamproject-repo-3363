@@ -1,17 +1,32 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
+import { fetchJSON } from "../api";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function LoginPage() {
+  usePageTitle("SnapEats - Sign in");
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleLogin = () => {
-    if (username && password) {
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Please enter email and password");
+      return;
+    }
+    setError("");
+
+    try {
+      const user = await fetchJSON("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+      localStorage.setItem("currentUser", JSON.stringify(user));
       navigate("/home");
-    } else {
-      alert("Please enter username and password");
+    } catch (err) {
+      setError(err.message || "Login failed");
     }
   };
 
@@ -19,11 +34,11 @@ export default function LoginPage() {
     <div className="page-container">
       <div className="login-box">
         <input
-          type="text"
-          placeholder="Username"
+          type="email"
+          placeholder="Email"
           className="input-box"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <input
           type="password"
@@ -32,6 +47,7 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        {error && <p className="error-text" style={{color: 'red'}}>{error}</p>}
 
         <div className="button-row">
           <button className="login-btn" onClick={handleLogin}>

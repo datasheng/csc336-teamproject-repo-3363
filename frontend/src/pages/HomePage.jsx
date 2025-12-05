@@ -3,10 +3,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import orderBg from "../assets/orderpage.png";
 import "./HomePage.css";
+import { fetchJSON } from "../api";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function HomePage() {
+  usePageTitle("SnapEats - Home");
   const [searchText, setSearchText] = useState("");
   const [address, setAddress] = useState("Getting your location...");
+  const [restaurants, setRestaurants] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,14 +35,32 @@ export default function HomePage() {
     }
   }, []);
 
-  const restaurants = [
-    { id: 1, name: "Sushi Zen", img: "/src/assets/test.png", rating: 4.8 },
-    { id: 2, name: "Pasta House", img: "/src/assets/pastaHouse.jpg", rating: 4.6 },
-    { id: 3, name: "Burger Hub", img: "/src/assets/burger.jpg", rating: 4.5 },
-    { id: 4, name: "Spicy Garden", img: "/src/assets/spicyGarden.jpeg", rating: 4.9 },
-    { id: 5, name: "Vegan Paradise", img: "/src/assets/VeganParadise.jpg", rating: 4.4 },
-    { id: 6, name: "Seafood Bay", img: "/src/assets/Seafood.jpg", rating: 4.7 },
-  ];
+  useEffect(() => {
+    const nameToImg = (name) => {
+      const map = {
+        "Sushi Zen": new URL("../assets/test.png", import.meta.url).href,
+        "Pasta House": new URL("../assets/pastaHouse.jpg", import.meta.url).href,
+        "Burger Hub": new URL("../assets/burger.jpg", import.meta.url).href,
+        "Spicy Garden": new URL("../assets/spicyGarden.jpeg", import.meta.url).href,
+        "Vegan Paradise": new URL("../assets/VeganParadise.jpg", import.meta.url).href,
+        "Seafood Bay": new URL("../assets/Seafood.jpg", import.meta.url).href,
+      };
+      return map[name] || new URL("../assets/test.png", import.meta.url).href;
+    };
+    (async () => {
+      try {
+        const data = await fetchJSON("/restaurants");
+        setRestaurants(
+          data.map((r) => ({
+            ...r,
+            img: nameToImg(r.name),
+          }))
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  }, []);
 
   return (
     <div className="orders-page" style={{ backgroundImage: `url(${orderBg})` }}>
@@ -62,7 +84,11 @@ export default function HomePage() {
         </div>
 
         <div className="restaurant-grid">
-          {restaurants.map((r) => (
+          {restaurants
+            .filter((r) =>
+              r.name.toLowerCase().includes(searchText.trim().toLowerCase())
+            )
+            .map((r) => (
             <div
               key={r.id}
               className="restaurant-card"
@@ -71,7 +97,7 @@ export default function HomePage() {
               <img src={r.img} alt={r.name} />
               <div className="restaurant-text">
                 <h3>{r.name}</h3>
-                <p className="rating">⭐ {r.rating} Google rating</p>
+                <p className="rating">📍 {r.loc}</p>
               </div>
             </div>
           ))}

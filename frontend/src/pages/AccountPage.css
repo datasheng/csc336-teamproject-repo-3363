@@ -1,189 +1,263 @@
 .account-page {
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   background-image: url("../assets/orderpage.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  font-family: "Poppins", sans-serif;
 }
 
 .account-container {
-  width: 75%;
-  max-width: 800px;
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(10px);
-  border-radius: 25px;
-  padding: 50px;
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+  width: 500px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 40px;
+  border-radius: 20px;
   text-align: center;
-  color: #222;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
 }
-
 
 .account-container h1 {
-  font-size: 2.2rem;
-  margin-bottom: 25px;
-  font-weight: 700;
-  color: #111;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #222;
 }
-
 
 .profile-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 30px;
 }
 
 .avatar {
-  width: 110px;
-  height: 110px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
+  border: 4px solid #ffb347;
   margin-bottom: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .profile-card h2 {
-  margin: 5px 0;
-  font-weight: 600;
-  color: #111;
+  font-size: 1.6rem;
+  color: #333;
+  margin: 0;
 }
 
 .profile-card p {
-  margin: 3px 0;
-  color: #555;
-}
-
-.joined {
-  font-size: 0.9rem;
-  color: #777;
-}
-
-
-.account-stats {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  flex-wrap: wrap;
-}
-
-.stat-box {
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 15px;
-  padding: 25px;
-  width: 200px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s;
-}
-
-.stat-box:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-}
-
-.stat-box h3 {
-  font-size: 1.6rem;
-  color: #111;
-  margin-bottom: 8px;
-}
-
-.stat-box p {
-  color: #555;
-  font-weight: 500;
-}
-
-
-.button-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr; 
-  gap: 16px;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-}
-
-
-.button-row button {
-  height: 46px;
-  width: 100%;
+  color: #666;
   font-size: 1rem;
+  margin: 5px 0 20px;
+}
+
+/* Action Buttons Layout */
+.actions-grid {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+  background: #fff;
+  border: 2px solid #ffb347;
+  color: #333;
+  padding: 10px 15px;
+  border-radius: 12px;
+  cursor: pointer;
   font-weight: 600;
+  transition: all 0.3s;
+  min-width: 100px;
+}
+
+.action-btn:hover {
+  background: #ffb347;
+  color: white;
+}
+
+.signout-btn {
+  background: #ff6b6b;
+  color: white;
   border: none;
-  border-radius: 10px;
+  padding: 10px 20px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: 0.3s ease;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-}
-
-
-.button-row .edit-btn {
-  background: linear-gradient(135deg, #ffb347, #ffcc33);
-  color: #fff;
-}
-
-.button-row .edit-btn:hover {
-  background: linear-gradient(135deg, #ff9f1a, #ffc107);
-  transform: translateY(-2px) scale(1.03);
-}
-
-
-.button-row .signout-btn {
-  background: linear-gradient(135deg, #ff6b6b, #ff4b4b);
-  color: #fff;
-}
-
-.button-row .signout-btn:hover {
-  background: linear-gradient(135deg, #e63946, #d62828);
-  transform: translateY(-2px) scale(1.03);
-}
-
-
-
-.account-container .button-row{
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)); 
-  column-gap: 16px;
-  align-items: stretch;
-  justify-items: stretch;
-  margin-top: 20px;
-}
-
-.account-container .button-row .edit-btn,
-.account-container .button-row .signout-btn{
-  all: unset; 
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  font-weight: bold;
   width: 100%;
-  height: 46px;
-  padding: 0 16px;
-  border-radius: 10px;
-  box-sizing: border-box;
-  font: 600 16px/1 "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  color: #fff;
-  cursor: pointer;
-  box-shadow: 0 3px 10px rgba(0,0,0,.15);
-  transition: transform .25s ease, background .25s ease, box-shadow .25s ease;
-  margin: 0; 
+  margin-top: 10px;
 }
 
-/* Edit Profile */
-.account-container .button-row .edit-btn{
-  background: linear-gradient(135deg, #ffb347, #ffcc33);
-}
-.account-container .button-row .edit-btn:hover{
-  background: linear-gradient(135deg, #ff9f1a, #ffc107);
-  transform: translateY(-2px) scale(1.03);
+.signout-btn:hover {
+  background: #ff4040;
 }
 
-/* Sign Out */
-.account-container .button-row .signout-btn{
-  background: linear-gradient(135deg, #ff6b6b, #ff4b4b);
+
+/* Form Styles (Shared) */
+.profile-form, .add-form {
+    text-align: left;
+    margin-top: 20px;
 }
-.account-container .button-row .signout-btn:hover{
-  background: linear-gradient(135deg, #e63946, #d62828);
-  transform: translateY(-2px) scale(1.03);
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #444;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.disabled-input {
+    background: #eee;
+    color: #777;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+}
+.form-row .form-group {
+    flex: 1;
+}
+
+.btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.save-btn {
+    flex: 1;
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    flex: 1;
+    background: #ccc;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.danger-zone {
+    margin-top: 30px;
+    border-top: 2px solid #ffcccc;
+    padding-top: 20px;
+}
+
+.danger-zone h3 {
+    color: #d9534f;
+    margin-bottom: 10px;
+}
+
+.delete-account-btn {
+    background: #d9534f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+}
+
+
+/* List Styles (Shared) */
+.list-container {
+    background: #f9f9f9;
+    border-radius: 10px;
+    padding: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.data-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.data-item {
+    background: white;
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.data-item.column {
+    /* align-items: flex-start; */
+}
+
+.addr-info {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+.sub-text {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.delete-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+.add-btn-small {
+    background: #ffb347;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+}
+
+.back-btn-small {
+    background: transparent;
+    border: 1px solid #aaa;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+    color: #555;
+}
+
+.msg-text {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #28a745;
 }

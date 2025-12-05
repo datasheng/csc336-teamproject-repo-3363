@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapEats Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; background: #f8f9fa; }
+        .card { margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .table-responsive { max-height: 400px; overflow-y: auto; }
+        select.form-select-sm { width: auto; padding: 2px 24px 2px 8px; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <h1 class="mb-4">SnapEats Database Monitor</h1>
+        <div class="mb-4">
+            <button onclick="location.reload()" class="btn btn-primary">🔄 Refresh Data</button>
+            <a href="/admin/revenue" class="btn btn-success ms-2">📊 Revenue Report</a>
+        </div>
+
+        <div class="row">
+            <!-- Users Table -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">Users</div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr></thead>
+                            <tbody>
+                                {% for u in users %}
+                                <tr>
+                                    <td>{{ u.usrID }}</td>
+                                    <td>{{ u.usrFirstName }} {{ u.usrLastName }}</td>
+                                    <td>{{ u.emailAddr }}</td>
+                                    <td>{{ u.usrRole }}</td>
+                                    <td>
+                                        <form action="/admin/delete/users/{{ u.usrID }}" method="POST" onsubmit="return confirm('Delete?');">
+                                            <button class="btn btn-danger btn-sm">Del</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurants Table (No Action) -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-warning">Restaurants</div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead><tr><th>ID</th><th>Name</th><th>Tel</th><th>Loc</th></tr></thead>
+                            <tbody>
+                                {% for r in restaurants %}
+                                <tr>
+                                    <td>{{ r.restID }}</td>
+                                    <td>{{ r.restName }}</td>
+                                    <td>{{ r.restTelNum }}</td>
+                                    <td>{{ r.restLoc }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Address Book -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">Address Book</div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead><tr><th>ID</th><th>User ID</th><th>Address</th><th>Contact</th><th>Action</th></tr></thead>
+                            <tbody>
+                                {% for a in addresses %}
+                                <tr>
+                                    <td>{{ a.addID }}</td>
+                                    <td>{{ a.usrID }}</td>
+                                    <td>{{ a.address }}</td>
+                                    <td>{{ a.contactNum }}</td>
+                                    <td>
+                                        <form action="/admin/delete/customerAddressBook/{{ a.addID }}" method="POST" onsubmit="return confirm('Delete?');">
+                                            <button class="btn btn-danger btn-sm">Del</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payments -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">Payments</div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead><tr><th>ID</th><th>User ID</th><th>Card Num</th><th>Action</th></tr></thead>
+                            <tbody>
+                                {% for p in payments %}
+                                <tr>
+                                    <td>{{ p.paymentID }}</td>
+                                    <td>{{ p.usrID }}</td>
+                                    <td>{{ p.cardNum }}</td>
+                                    <td>
+                                        <form action="/admin/delete/payments/{{ p.paymentID }}" method="POST" onsubmit="return confirm('Delete?');">
+                                            <button class="btn btn-danger btn-sm">Del</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Orders Table -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">Orders (Latest First)</div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead><tr><th>ID</th><th>User ID</th><th>Rest ID</th><th>Time</th><th>Status (Edit)</th><th>Action</th></tr></thead>
+                            <tbody>
+                                {% for o in orders %}
+                                <tr>
+                                    <td>{{ o.orderID }}</td>
+                                    <td>{{ o.usrID }}</td>
+                                    <td>{{ o.restID }}</td>
+                                    <td>{{ o.orderTime }}</td>
+                                    <td>
+                                        <form action="/admin/update_order_status/{{ o.orderID }}" method="POST">
+                                            <select name="status" onchange="this.form.submit()" class="form-select form-select-sm bg-{{ 'warning' if o.orderStatus=='pending' else 'success' if o.orderStatus=='confirmed' else 'secondary' }}">
+                                                <option value="pending" {% if o.orderStatus=='pending' %}selected{% endif %}>Pending</option>
+                                                <option value="confirmed" {% if o.orderStatus=='confirmed' %}selected{% endif %}>Confirmed</option>
+                                                <option value="cancelled" {% if o.orderStatus=='cancelled' %}selected{% endif %}>Cancelled</option>
+                                                <option value="completed" {% if o.orderStatus=='completed' %}selected{% endif %}>Completed</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <form action="/admin/delete/orders/{{ o.orderID }}" method="POST" onsubmit="return confirm('Delete?');">
+                                            <button class="btn btn-danger btn-sm">Del</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+             <!-- Items Table (No Action) -->
+             <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">Menu Items</div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Description</th></tr></thead>
+                            <tbody>
+                                {% for i in items %}
+                                <tr>
+                                    <td>{{ i.itemID }}</td>
+                                    <td>{{ i.itemName }}</td>
+                                    <td>${{ i.itemPrice }}</td>
+                                    <td>{{ i.itemDSC }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

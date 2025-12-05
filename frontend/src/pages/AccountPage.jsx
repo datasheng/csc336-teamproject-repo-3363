@@ -1,30 +1,34 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AccountPage.css";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function AccountPage() {
+  usePageTitle("SnapEats - My Account");
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
-  const user = {
-    name: "Xinhang Yang",
-    email: "xinhang.yang@example.com",
-    joined: "March 2024",
-    totalOrders: 24,
-    totalSpent: 521.75,
-    activeOrders: 2,
-  };
+  useEffect(() => {
+    const stored = localStorage.getItem("currentUser");
+    if (!stored) {
+        navigate("/"); 
+        return;
+    }
+    setUser(JSON.parse(stored));
+  }, [navigate]);
 
- 
   const handleSignOut = () => {
-    localStorage.removeItem("currentUser"); 
-    alert("👋 You have signed out successfully!");
-    navigate("/"); 
+    localStorage.removeItem("currentUser");
+    // localStorage.removeItem("snapEats_cart"); 
+    navigate("/");
   };
+
+  if (!user) return null;
 
   return (
     <div className="account-page">
       <div className="account-container">
         <h1>My Account</h1>
-
         
         <div className="profile-card">
           <img
@@ -32,32 +36,18 @@ export default function AccountPage() {
             alt="Avatar"
             className="avatar"
           />
-          <h2>{user.name}</h2>
+          <h2>{user.firstName} {user.lastName}</h2>
           <p>{user.email}</p>
-          <p className="joined">Joined {user.joined}</p>
 
-          <div className="button-row">
-            <button className="edit-btn">Edit Profile</button>
-            <button className="signout-btn" onClick={handleSignOut}>
-              Sign Out
-            </button>
+          <div className="actions-grid">
+            <button className="action-btn" onClick={() => navigate("/payment")}>💳 Payment</button>
+            <button className="action-btn" onClick={() => navigate("/address-book")}>📍 Address Book</button>
+            <button className="action-btn" onClick={() => navigate("/profile-edit")}>✏️ Edit Profile</button>
           </div>
-        </div>
 
-        
-        <div className="account-stats">
-          <div className="stat-box">
-            <h3>${user.totalSpent.toFixed(2)}</h3>
-            <p>Total Spent</p>
-          </div>
-          <div className="stat-box">
-            <h3>{user.totalOrders}</h3>
-            <p>Orders Placed</p>
-          </div>
-          <div className="stat-box">
-            <h3>{user.activeOrders}</h3>
-            <p>Active Orders</p>
-          </div>
+          <button className="signout-btn" onClick={handleSignOut}>
+            Sign Out
+          </button>
         </div>
       </div>
     </div>

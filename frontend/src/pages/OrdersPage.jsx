@@ -1,80 +1,62 @@
-// src/pages/OrdersPage.jsx
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom"; 
 import "./OrdersPage.css";
+import { fetchJSON } from "../api";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function OrdersPage() {
-  const location = useLocation();
-  const newOrder = location.state?.newOrder; 
-
-  const [orders, setOrders] = useState([
-    {
-      id: 1,
-      restaurant: "Sushi Heaven",
-      items: ["Salmon Roll", "Miso Soup"],
-      total: 25.5,
-      status: "Pending",
-      date: "Nov 6, 2025",
-    },
-    {
-      id: 2,
-      restaurant: "Pizza Planet",
-      items: ["Pepperoni Pizza", "Garlic Knots"],
-      total: 22.0,
-      status: "In Delivery",
-      date: "Nov 6, 2025",
-    },
-    {
-      id: 3,
-      restaurant: "BBQ King",
-      items: ["Ribs", "Coleslaw"],
-      total: 30.0,
-      status: "Completed",
-      date: "Nov 3, 2025",
-    },
-    {
-      id: 4,
-      restaurant: "Noodle House",
-      items: ["Beef Noodles", "Spring Rolls"],
-      total: 18.5,
-      status: "Cancelled",
-      date: "Nov 2, 2025",
-    },
-  ]);
-
+  usePageTitle("SnapEats - Orders");
+  const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState("All");
 
-  
   useEffect(() => {
-    if (newOrder) {
-      setOrders((prev) => [newOrder, ...prev]); 
-    }
-  }, [newOrder]);
+    loadOrders();
+  }, []);
 
+  const loadOrders = async () => {
+    const userStr = localStorage.getItem("currentUser");
+    if (!userStr) return;
+    const user = JSON.parse(userStr);
+    try {
+        const data = await fetchJSON(`/orders?usrID=${user.usrID}`);
+        const mapped = data.map(o => ({
+            id: o.id,
+            restaurant: o.restaurant,
+            items: o.items.map(i => `${i.name} x${i.quantity}`),
+            total: o.total,
+            status: o.orderStatus || "Pending",
+            date: new Date(o.orderTime).toLocaleDateString(),
+            deliveryAddress: o.deliveryAddress // Backend now returns this
+        }));
+        setOrders(mapped);
+    } catch (e) {
+        console.error(e);
+    }
+  };
   
-  const handleCancel = (id) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === id ? { ...order, status: "Cancelled" } : order
-      )
-    );
+  const handleCancel = async (id) => {
+    if (!window.confirm("Are you sure you want to cancel this order?")) return;
+    try {
+        await fetchJSON(`/orders/${id}/cancel`, { method: "POST" });
+        alert("Order canceled successfully");
+        loadOrders(); // Reload list
+    } catch (e) {
+        alert("Failed to cancel: " + e.message);
+    }
   };
 
- 
   const filteredOrders =
     filter === "All"
       ? orders
-      : orders.filter((order) => order.status === filter);
+      : orders.filter((order) => order.status.toLowerCase() === filter.toLowerCase());
 
   return (
     <div className="orders-page">
       <div className="orders-container">
         <h1 className="orders-title">Your Orders</h1>
         <p className="orders-subtitle">View and manage all your recent orders</p>
-
        
         <div className="filter-tabs">
-          {["All", "Pending", "In Delivery", "Completed", "Cancelled"].map(
+          {["All", "Pending", "Confirmed", "Cancelled", "Completed"].map(
             (status) => (
               <button
                 key={status}
@@ -86,7 +68,6 @@ export default function OrdersPage() {
             )
           )}
         </div>
-
        
         <div className="orders-grid">
           {filteredOrders.length === 0 ? (
@@ -103,6 +84,12 @@ export default function OrdersPage() {
                     {order.status}
                   </span>
                 </div>
+                
+                {order.deliveryAddress && (
+                    <div style={{ textAlign: 'left', fontSize: '0.9rem', color: '#555', margin: '5px 0' }}>
+                        📍 {order.deliveryAddress}
+                    </div>
+                )}
 
                 <ul className="order-items">
                   {order.items.map((item, index) => (
@@ -113,7 +100,7 @@ export default function OrdersPage() {
                 <div className="order-footer">
                   <p className="order-total">Total: ${order.total.toFixed(2)}</p>
 
-                  {order.status === "Pending" && (
+                  {(order.status.toLowerCase() === "pending") && (
                     <button
                       className="cancel-btn"
                       onClick={() => handleCancel(order.id)}

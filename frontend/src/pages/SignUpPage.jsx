@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./SignUpPage.css";
+import { fetchJSON } from "../api";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function SignUpPage() {
+  usePageTitle("SnapEats - Sign Up");
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -35,12 +39,12 @@ export default function SignUpPage() {
   };
 
  
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
  
-    if (!form.name || !form.email || !form.password || !form.confirmPassword) {
+    if (!form.firstName || !form.lastName || !form.email || !form.password || !form.confirmPassword) {
       setError("⚠️ Please fill in all fields.");
       return;
     }
@@ -58,25 +62,22 @@ export default function SignUpPage() {
       return;
     }
 
-   
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const exists = users.find((u) => u.email === form.email);
-
-    if (exists) {
-      setError("⚠️ This email is already registered.");
-      return;
+    try {
+        const user = await fetchJSON("/auth/signup", {
+            method: "POST",
+            body: JSON.stringify({
+                email: form.email,
+                password: form.password,
+                firstName: form.firstName,
+                lastName: form.lastName
+            }),
+        });
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        alert("🎉 Account created successfully!");
+        navigate("/home");
+    } catch (err) {
+        setError(`❌ ${err.message}`);
     }
-
-    users.push({
-      name: form.name,
-      email: form.email,
-      password: form.password,
-    });
-    localStorage.setItem("users", JSON.stringify(users));
-
-    
-    alert("🎉 Account created successfully!");
-    navigate("/restaurants"); 
   };
 
   return (
@@ -86,15 +87,27 @@ export default function SignUpPage() {
         <p className="subtitle">Join our delivery platform today!</p>
 
         <form className="signup-form" onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label>Full Name</label>
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              required
-            />
+          <div className="input-group-row" style={{ display: 'flex', gap: '10px' }}>
+            <div className="input-group" style={{ flex: 1 }}>
+                <label>First Name</label>
+                <input
+                type="text"
+                name="firstName"
+                value={form.firstName}
+                onChange={handleChange}
+                required
+                />
+            </div>
+            <div className="input-group" style={{ flex: 1 }}>
+                <label>Last Name</label>
+                <input
+                type="text"
+                name="lastName"
+                value={form.lastName}
+                onChange={handleChange}
+                required
+                />
+            </div>
           </div>
 
           <div className="input-group">

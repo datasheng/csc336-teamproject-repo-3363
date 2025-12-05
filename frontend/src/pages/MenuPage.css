@@ -12,74 +12,157 @@
   font-family: "Poppins", sans-serif;
 }
 
-
 .menu-container {
   flex: 1;
   margin-left: 250px;
   text-align: center;
   color: white;
+  height: 100%;
+  overflow-y: auto;
+  padding-top: 40px;
 }
 
 .menu-title {
   font-size: 2.5rem;
   font-weight: 700;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   color: #000;
   text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
-
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive columns */
   gap: 40px;
   justify-items: center;
   padding: 40px;
 }
 
-
 .menu-card {
-    width: 340px;         
-    height: 280px;        
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 18px;
-    backdrop-filter: blur(10px);
-    overflow: hidden;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-    transition: all 0.3s ease;
-  }
-  
-  .menu-card:hover {
-    transform: translateY(-10px);
-  }
-  
-  .menu-card img {
+  width: 100%;
+  max-width: 340px;
+  height: auto; /* Let height adjust */
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 18px;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-card:hover {
+  transform: translateY(-10px);
+}
+
+.img-container {
     width: 100%;
-    height: 70%;         
-    object-fit: cover;
-  }
-  
-  .menu-info {
-    padding: 8px 10px;
-    display: flex;             
-    flex-direction: column;   
-    align-items: center;        
-    justify-content: center;    
-    height: 30%;
-  }
-  
+    height: 200px; /* Fixed height for image */
+    position: relative;
+}
 
-  
-  .price {
-    color: #21201e;
+.menu-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.menu-info {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+}
+
+.menu-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  width: 100%;
+}
+
+.menu-header h3 {
+  font-size: 1.1rem;
+  color: #111010;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.price {
+  color: #21201e;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.item-desc {
+    font-size: 0.85rem;
+    color: #333;
+    margin: 5px 0 15px;
+    line-height: 1.4;
+    /* Allow text to expand */
+}
+
+.actions-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+    margin-top: auto; /* Push to bottom */
+}
+
+.qty-control {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.6);
+    border-radius: 20px;
+    padding: 2px 8px;
+}
+
+.qty-control button {
+    background: none;
+    border: none;
     font-weight: bold;
-    font-size: 1rem;
-  }
-  
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 5px;
+    color: #333;
+}
 
+.qty-control span {
+    margin: 0 8px;
+    font-weight: 600;
+    color: #000;
+}
+
+.add-btn {
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid #ffd27f;
+  color: #141413;
+  font-weight: 500;
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.add-btn:hover {
+  background: #ffd27f;
+  color: #333;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
 
 .back-btn {
-  margin-top: 20px;
+  margin: 20px 0 40px;
   background: rgba(255, 255, 255, 0.4);
   border: none;
   padding: 12px 28px;
@@ -94,47 +177,3 @@
   background: rgba(255, 255, 255, 0.6);
   transform: scale(1.05);
 }
-
-.menu-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px; 
-    margin-bottom: 6px;
-  }
-  
-  .menu-header h3 {
-    font-size: 1.1rem;
-    color: #111010;
-    margin: 0;
-  }
-  
-  .price {
-    color: #8c5d3c;
-    font-weight: bold;
-    font-size: 1rem;
-  }
-  
- 
- .add-btn {
-    background: rgba(255, 255, 255, 0.25);
-    border: 1px solid #ffd27f;
-    color: #141413;
-    font-weight: 500;
-    font-size: 0.85rem;
-    padding: 5px 14px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: 0.25s ease;
-    margin-top: 4px;  
-  }
-  
-  
-  .add-btn:hover {
-    background: #ffd27f;
-    color: #333;
-    transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  

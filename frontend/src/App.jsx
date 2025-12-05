@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import "./App.css";
 
 import Sidebar from "./components/Sidebar.jsx";
 
@@ -10,6 +9,9 @@ import MenuPage from "./pages/MenuPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import OrdersPage from "./pages/OrdersPage.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
+import ProfileEditPage from "./pages/ProfileEditPage.jsx";
+import PaymentPage from "./pages/PaymentPage.jsx";
+import AddressBookPage from "./pages/AddressBookPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx"; // ✅ 加入 Checkout 页面
 
 export default function App() {
@@ -29,6 +31,9 @@ export default function App() {
         <Route path="/checkout" element={<CheckoutPage />} /> {/* ✅ 新增结账页 */}
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/account" element={<AccountPage />} />
+        <Route path="/profile-edit" element={<ProfileEditPage />} />
+        <Route path="/payment" element={<PaymentPage />} />
+        <Route path="/address-book" element={<AddressBookPage />} />
       </Routes>
     </BrowserRouter>
   );
