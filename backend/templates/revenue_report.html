@@ -150,6 +150,85 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Stored Procedure Utilities -->
+                <hr class="my-5">
+                <h2>Stored Procedures</h2>
+
+                <div class="row g-3">
+                    <!-- SP1 -->
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">SP1: User Order Profit</div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">User ID (integer)</label>
+                                    <input type="number" class="form-control" id="sp1UserId" placeholder="e.g., 2">
+                                </div>
+                                <div class="d-flex gap-2 mb-3">
+                                    <button class="btn btn-primary btn-sm" onclick="runSp1()">Query</button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="exportSp1CSV()">Export CSV</button>
+                                </div>
+                                <div class="table-responsive" style="max-height:300px;">
+                                    <table class="table table-sm table-striped" id="sp1Table">
+                                        <thead>
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Time</th>
+                                                <th>Rest ID</th>
+                                                <th>Restaurant</th>
+                                                <th>Total</th>
+                                                <th>Profit 10%</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="text-muted small" id="sp1Status"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SP2 -->
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">SP2: Revenue Range</div>
+                            <div class="card-body">
+                                <div class="row g-2 mb-2">
+                                    <div class="col-12">
+                                        <label class="form-label">Start (datetime-local)</label>
+                                        <input type="datetime-local" class="form-control" id="sp2Start">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">End (datetime-local)</label>
+                                        <input type="datetime-local" class="form-control" id="sp2End">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Restaurant ID (optional, integer; blank = all)</label>
+                                        <input type="number" class="form-control" id="sp2RestId" placeholder="Leave empty for all">
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 mb-3">
+                                    <button class="btn btn-primary btn-sm" onclick="runSp2()">Query</button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="exportSp2CSV()">Export CSV</button>
+                                </div>
+                                <div class="table-responsive" style="max-height:300px;">
+                                    <table class="table table-sm table-striped" id="sp2Table">
+                                        <thead>
+                                            <tr>
+                                                <th>Restaurant</th>
+                                                <th>Total</th>
+                                                <th>Profit 10%</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="text-muted small" id="sp2Status"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
@@ -166,7 +245,9 @@
 
         // Data from Flask
         const rawOrders = {{ orders | tojson }};
-        
+        let sp1Data = [];
+        let sp2Data = [];
+
         let chartInstance = null;
 
         function getSeason(date) {
@@ -326,9 +407,138 @@
 
         // Init
         updateDashboard();
+
+        // ---------- Stored Proc helpers ----------
+        function formatDtLocalToSql(val) {
+            if (!val) return "";
+            // datetime-local gives 'YYYY-MM-DDTHH:MM', append :00
+            return val.replace('T', ' ') + ':00';
+        }
+
+        async function runSp1() {
+            const userId = document.getElementById('sp1UserId').value.trim();
+            const statusEl = document.getElementById('sp1Status');
+            statusEl.innerText = '';
+            if (!userId || isNaN(userId)) {
+                statusEl.innerText = 'Please enter a valid integer userId.';
+                return;
+            }
+            try {
+                const res = await fetch(`/admin/revenue/sp_user_order_profit?userId=${encodeURIComponent(userId)}`);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Request failed');
+                sp1Data = data;
+                renderSp1Table();
+                statusEl.innerText = `Rows: ${data.length}`;
+            } catch (e) {
+                statusEl.innerText = `Error: ${e.message}`;
+            }
+        }
+
+        function renderSp1Table() {
+            const tbody = document.querySelector('#sp1Table tbody');
+            tbody.innerHTML = '';
+            sp1Data.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${r.orderID}</td>
+                    <td>${r.orderTime}</td>
+                    <td>${r.restID}</td>
+                    <td>${r.restName}</td>
+                    <td>${Number(r.totalAmount).toFixed(2)}</td>
+                    <td>${Number(r.profit).toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function runSp2() {
+            const start = formatDtLocalToSql(document.getElementById('sp2Start').value);
+            const end = formatDtLocalToSql(document.getElementById('sp2End').value);
+            const restIdRaw = document.getElementById('sp2RestId').value.trim();
+            const statusEl = document.getElementById('sp2Status');
+            statusEl.innerText = '';
+            if (!start || !end) {
+                statusEl.innerText = 'Please provide start and end datetime.';
+                return;
+            }
+            const params = new URLSearchParams();
+            params.set('start', start);
+            params.set('end', end);
+            if (restIdRaw !== '') params.set('restId', restIdRaw);
+            try {
+                const res = await fetch(`/admin/revenue/sp_revenue_range?${params.toString()}`);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Request failed');
+                sp2Data = data;
+                renderSp2Table();
+                statusEl.innerText = `Rows: ${data.length}`;
+            } catch (e) {
+                statusEl.innerText = `Error: ${e.message}`;
+            }
+        }
+
+        function renderSp2Table() {
+            const tbody = document.querySelector('#sp2Table tbody');
+            tbody.innerHTML = '';
+            sp2Data.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${r.restName}</td>
+                    <td>${Number(r.totalAmount).toFixed(2)}</td>
+                    <td>${Number(r.profit).toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function downloadCsv(lines, filename) {
+            const csvString = lines.join("\r\n");
+            const blob = new Blob(["\ufeff" + csvString], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportSp1CSV() {
+            if (!sp1Data.length) return;
+            const lines = [];
+            lines.push("OrderID,Time,RestID,Restaurant,Total,Profit");
+            sp1Data.forEach(r => {
+                lines.push([
+                    r.orderID,
+                    `"${r.orderTime}"`,
+                    r.restID,
+                    `"${r.restName}"`,
+                    Number(r.totalAmount).toFixed(2),
+                    Number(r.profit).toFixed(2)
+                ].join(","));
+            });
+            downloadCsv(lines, "sp_user_order_profit.csv");
+        }
+
+        function exportSp2CSV() {
+            if (!sp2Data.length) return;
+            const lines = [];
+            lines.push("Restaurant,Total,Profit");
+            sp2Data.forEach(r => {
+                lines.push([
+                    `"${r.restName}"`,
+                    Number(r.totalAmount).toFixed(2),
+                    Number(r.profit).toFixed(2)
+                ].join(","));
+            });
+            downloadCsv(lines, "sp_revenue_range.csv");
+        }
     </script>
 </body>
 </html>
+
 
 
 

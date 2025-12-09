@@ -140,6 +140,49 @@ def create_app() -> Flask:
 		except Exception as e:
 			return f"Error loading report: {str(e)}", 500
 
+	@app.route("/admin/revenue/sp_user_order_profit", methods=["GET"])
+	def sp_user_order_profit_api():
+		user_id = request.args.get("userId", type=int)
+		if not user_id:
+			return jsonify({"error": "userId is required and must be integer"}), 400
+		try:
+			rows = query_all("CALL sp_user_order_profit(%s)", (user_id,))
+			for r in rows:
+				if "totalAmount" in r:
+					r["totalAmount"] = float(r["totalAmount"])
+				if "profit" in r:
+					r["profit"] = float(r["profit"])
+			return jsonify(rows)
+		except Exception as e:
+			return jsonify({"error": str(e)}), 500
+
+	@app.route("/admin/revenue/sp_revenue_range", methods=["GET"])
+	def sp_revenue_range_api():
+		start = request.args.get("start")
+		end = request.args.get("end")
+		rest_id_raw = request.args.get("restId")
+
+		if not (start and end):
+			return jsonify({"error": "start and end are required (DATETIME)"}), 400
+
+		rest_id = None
+		if rest_id_raw is not None and rest_id_raw != "":
+			try:
+				rest_id = int(rest_id_raw)
+			except ValueError:
+				return jsonify({"error": "restId must be integer or empty for all"}), 400
+
+		try:
+			rows = query_all("CALL sp_revenue_range(%s, %s, %s)", (start, end, rest_id))
+			for r in rows:
+				if "totalAmount" in r:
+					r["totalAmount"] = float(r["totalAmount"])
+				if "profit" in r:
+					r["profit"] = float(r["profit"])
+			return jsonify(rows)
+		except Exception as e:
+			return jsonify({"error": str(e)}), 500
+
 	@app.route("/api/health", methods=["GET"])
 	def health():
 		return jsonify({"status": "ok"})

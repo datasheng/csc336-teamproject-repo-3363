@@ -269,3 +269,52 @@ SELECT m.menuID, i.itemID
 FROM menus m
 JOIN restaurants r ON r.restID = m.restID AND r.restName = 'Seafood Bay'
 JOIN items i ON i.itemName IN ('Grilled Salmon','Shrimp Pasta','Lobster Tail','Seafood Chowder');
+
+-- =====================================================
+--  STORED PROCEDURES
+--  Purpose:
+--    sp_user_order_profit : per-user order totals and platform profit (10%)
+--    sp_revenue_range     : revenue & profit by date range, optional restaurant
+-- =====================================================
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_user_order_profit//
+CREATE PROCEDURE sp_user_order_profit(IN pUserId INT)
+BEGIN
+  SELECT o.orderID,
+         o.orderTime,
+         o.restID,
+         r.restName,
+         SUM(oi.quantity * i.itemPrice) AS totalAmount,
+         ROUND(SUM(oi.quantity * i.itemPrice) * 0.10, 2) AS profit
+  FROM orders o
+  JOIN restaurants r ON r.restID = o.restID
+  JOIN orderItems oi ON oi.orderID = o.orderID
+  JOIN items i ON i.itemID = oi.itemID
+  WHERE o.usrID = pUserId
+    AND o.orderStatus <> 'cancelled'
+  GROUP BY o.orderID, o.orderTime, o.restID, r.restName
+  ORDER BY o.orderTime DESC;
+END//
+
+DROP PROCEDURE IF EXISTS sp_revenue_range//
+CREATE PROCEDURE sp_revenue_range(
+  IN pStart DATETIME,
+  IN pEnd   DATETIME,
+  IN pRestId INT
+)
+BEGIN
+  SELECT r.restName,
+         SUM(oi.quantity * i.itemPrice) AS totalAmount,
+         ROUND(SUM(oi.quantity * i.itemPrice) * 0.10, 2) AS profit
+  FROM orders o
+  JOIN orderItems oi ON oi.orderID = o.orderID
+  JOIN items i ON i.itemID = oi.itemID
+  JOIN restaurants r ON r.restID = o.restID
+  WHERE o.orderTime BETWEEN pStart AND pEnd
+    AND (pRestId IS NULL OR o.restID = pRestId)
+    AND o.orderStatus <> 'cancelled'
+  GROUP BY r.restName;
+END//
+
+DELIMITER ;
