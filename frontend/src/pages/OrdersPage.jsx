@@ -7,6 +7,10 @@ export default function OrdersPage() {
   usePageTitle("SnapEats - Orders");
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState("All");
+  const [reviewModal, setReviewModal] = useState(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewText, setReviewText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     loadOrders();
@@ -25,11 +29,36 @@ export default function OrdersPage() {
             total: o.total,
             status: o.orderStatus || "Pending",
             date: new Date(o.orderTime).toLocaleDateString(),
-            deliveryAddress: o.deliveryAddress // Backend now returns this
+            deliveryAddress: o.deliveryAddress,
+            hasReview: o.hasReview,
+            reviewRating: o.reviewRating,
         }));
         setOrders(mapped);
     } catch (e) {
         console.error(e);
+    }
+  };
+
+  const openReviewModal = (order) => {
+    setReviewModal(order);
+    setReviewRating(5);
+    setReviewText("");
+  };
+
+  const submitReview = async () => {
+    if (!reviewModal) return;
+    setSubmitting(true);
+    try {
+      await fetchJSON(`/orders/${reviewModal.id}/review`, {
+        method: "POST",
+        body: JSON.stringify({ rating: reviewRating, reviewText }),
+      });
+      setReviewModal(null);
+      loadOrders();
+    } catch (e) {
+      alert("Failed to submit review: " + e.message);
+    } finally {
+      setSubmitting(false);
     }
   };
   
@@ -108,12 +137,73 @@ export default function OrdersPage() {
                       Cancel Order
                     </button>
                   )}
+
+                  {order.status.toLowerCase() === "completed" && !order.hasReview && (
+                    <button
+                      className="cancel-btn"
+                      style={{ background: '#f5a623' }}
+                      onClick={() => openReviewModal(order)}
+                    >
+                      Leave a Review
+                    </button>
+                  )}
+
+                  {order.status.toLowerCase() === "completed" && order.hasReview && (
+                    <span style={{ color: '#666', fontSize: '0.9rem' }}>
+                      Your rating: {'⭐'.repeat(order.reviewRating || 0)}
+                    </span>
+                  )}
                 </div>
               </div>
             ))
           )}
         </div>
       </div>
+
+      {reviewModal && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+          }}
+          onClick={() => !submitting && setReviewModal(null)}
+        >
+          <div
+            style={{ background: '#fff', padding: '24px', borderRadius: '12px', width: '90%', maxWidth: '420px' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ marginTop: 0 }}>Review {reviewModal.restaurant}</h2>
+            <div style={{ fontSize: '2rem', textAlign: 'center', margin: '16px 0', cursor: 'pointer' }}>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <span
+                  key={n}
+                  onClick={() => setReviewRating(n)}
+                  style={{ opacity: n <= reviewRating ? 1 : 0.3 }}
+                >
+                  ⭐
+                </span>
+              ))}
+            </div>
+            <textarea
+              value={reviewText}
+              onChange={(e) => setReviewText(e.target.value)}
+              placeholder="Tell others about your experience (optional)"
+              rows={4}
+              style={{ width: '100%', boxSizing: 'border-box', padding: '8px', fontSize: '0.95rem' }}
+            />
+            <div style={{ display: 'flex', gap: '8px', marginTop: '16px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setReviewModal(null)} disabled={submitting}>Cancel</button>
+              <button
+                onClick={submitReview}
+                disabled={submitting}
+                style={{ background: '#f5a623', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer' }}
+              >
+                {submitting ? 'Submitting...' : 'Submit Review'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -55,6 +55,7 @@ export default function MenuPage() {
 
   const [restaurant, setRestaurant] = useState(null);
   const [items, setItems] = useState([]);
+  const [reviews, setReviews] = useState([]);
 
   usePageTitle(restaurant ? `SnapEats - ${restaurant.name}` : "SnapEats - Menu");
 
@@ -91,9 +92,10 @@ export default function MenuPage() {
 
     (async () => {
       try {
-        const [rest, menuItems] = await Promise.all([
+        const [rest, menuItems, reviewList] = await Promise.all([
           fetchJSON(`/restaurants/${id}`),
           fetchJSON(`/restaurants/${id}/menu`),
+          fetchJSON(`/restaurants/${id}/reviews`),
         ]);
         setRestaurant(rest);
         setItems(
@@ -102,6 +104,7 @@ export default function MenuPage() {
             img: itemToImg(it.name),
           }))
         );
+        setReviews(reviewList);
       } catch (e) {
         console.error(e);
       }
@@ -125,6 +128,11 @@ export default function MenuPage() {
         <div className="restaurant-header">
             <h1 className="menu-title">{restaurant.name}</h1>
             <div className="restaurant-details" style={{ fontSize: '1.2em', color: '#555', marginBottom: '20px' }}>
+                <p>
+                  {restaurant.rating != null
+                    ? `⭐ ${restaurant.rating.toFixed(1)} (${restaurant.reviewCount} review${restaurant.reviewCount === 1 ? '' : 's'})`
+                    : '⭐ No reviews yet'}
+                </p>
                 <p>📍 {restaurant.loc} &emsp; &emsp; 📞 {restaurant.tel}</p>
             </div>
         </div>
@@ -133,6 +141,28 @@ export default function MenuPage() {
           {items.map((item) => (
             <MenuItemCard key={item.id} item={item} restID={restaurant.id} restName={restaurant.name} />
           ))}
+        </div>
+
+        <div className="reviews-section" style={{ marginTop: '40px', padding: '20px', background: 'rgba(255,255,255,0.92)', borderRadius: '12px' }}>
+          <h2 style={{ marginBottom: '15px' }}>Customer Reviews</h2>
+          {reviews.length === 0 ? (
+            <p style={{ color: '#666' }}>No reviews yet. Be the first to leave one after your order!</p>
+          ) : (
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+              {reviews.map((rv) => (
+                <li key={rv.reviewID} style={{ borderBottom: '1px solid #eee', padding: '12px 0' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <strong>{rv.customerName}</strong>
+                    <span>{'⭐'.repeat(rv.rating)}</span>
+                  </div>
+                  {rv.reviewText && <p style={{ margin: '6px 0 0', color: '#444' }}>{rv.reviewText}</p>}
+                  <small style={{ color: '#888' }}>
+                    {new Date(rv.reviewTime).toLocaleDateString()}
+                  </small>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <button className="back-btn" onClick={() => navigate("/home")}>
