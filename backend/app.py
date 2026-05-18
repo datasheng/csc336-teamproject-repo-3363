@@ -192,13 +192,21 @@ def create_app() -> Flask:
 	def list_restaurants():
 		rows = query_all(
 			"""
-			SELECT restID AS id, restName AS name, restTelNum AS tel, restLoc AS loc
-			FROM restaurants
-			ORDER BY restID
+			SELECT r.restID AS id,
+			       r.restName AS name,
+			       r.restTelNum AS tel,
+			       r.restLoc AS loc,
+			       ROUND(AVG(rv.rating), 2) AS rating,
+			       COUNT(rv.reviewID) AS reviewCount
+			FROM restaurants r
+			LEFT JOIN reviews rv ON rv.restID = r.restID
+			GROUP BY r.restID, r.restName, r.restTelNum, r.restLoc
+			ORDER BY r.restID
 			"""
 		)
-		for i, r in enumerate(rows):
-			r["rating"] = round(4.4 + (i % 6) * 0.1, 1)
+		for r in rows:
+			r["rating"] = float(r["rating"]) if r["rating"] is not None else None
+			r["reviewCount"] = int(r["reviewCount"])
 		return jsonify(rows)
 
 	@app.route("/api/restaurants/<int:rest_id>", methods=["GET"])
@@ -212,8 +220,29 @@ def create_app() -> Flask:
 		)
 		if not row:
 			return jsonify({"error": "Restaurant not found"}), 404
-		row["rating"] = 4.7
+		agg = query_one("CALL sp_restaurant_rating(%s)", (rest_id,))
+		row["rating"] = float(agg["avgRating"]) if agg and agg.get("avgRating") is not None else None
+		row["reviewCount"] = int(agg["reviewCount"]) if agg else 0
 		return jsonify(row)
+
+	@app.route("/api/restaurants/<int:rest_id>/reviews", methods=["GET"])
+	def list_restaurant_reviews(rest_id: int):
+		rows = query_all(
+			"""
+			SELECT rv.reviewID,
+			       rv.orderID,
+			       rv.rating,
+			       rv.reviewText,
+			       rv.reviewTime,
+			       CONCAT(u.usrFirstName, ' ', u.usrLastName) AS customerName
+			FROM reviews rv
+			JOIN users u ON u.usrID = rv.usrID
+			WHERE rv.restID = %s
+			ORDER BY rv.reviewTime DESC
+			""",
+			(rest_id,),
+		)
+		return jsonify(rows)
 
 	@app.route("/api/restaurants/<int:rest_id>/menu", methods=["GET"])
 	def get_restaurant_menu(rest_id: int):
@@ -390,11 +419,14 @@ def create_app() -> Flask:
 				   r.restName AS restaurant,
 				   o.orderTime,
 				   o.orderStatus,
-				   cab.address AS deliveryAddress
+				   cab.address AS deliveryAddress,
+				   rv.reviewID AS reviewID,
+				   rv.rating AS reviewRating
 			FROM orders o
 			JOIN restaurants r ON r.restID = o.restID
 			LEFT JOIN deliveries d ON d.orderID = o.orderID
 			LEFT JOIN customerAddressBook cab ON cab.addID = d.custAddrID
+			LEFT JOIN reviews rv ON rv.orderID = o.orderID
 			WHERE o.usrID = %s
 			ORDER BY o.orderTime DESC, o.orderID DESC
 			""",
@@ -414,6 +446,7 @@ def create_app() -> Flask:
 				{"id": it["itemID"], "name": it["itemName"], "quantity": it["quantity"], "price": float(it["itemPrice"])}
 			for it in items]
 			o["total"] = round(sum(float(it["itemPrice"]) * it["quantity"] for it in items), 2)
+			o["hasReview"] = o["reviewID"] is not None
 		return jsonify(orders)
 
 	@app.route("/api/orders", methods=["POST"])
@@ -465,6 +498,45 @@ def create_app() -> Flask:
 			(order_id,),
 		)
 		return jsonify(created), 201
+
+	@app.route("/api/orders/<int:order_id>/review", methods=["POST"])
+	def submit_review(order_id):
+		data = request.get_json(force=True)
+		try:
+			rating = int(data.get("rating"))
+		except (TypeError, ValueError):
+			return jsonify({"error": "rating (1-5) is required"}), 400
+		if rating < 1 or rating > 5:
+			return jsonify({"error": "rating must be between 1 and 5"}), 400
+		review_text = (data.get("reviewText") or "").strip() or None
+
+		order = query_one(
+			"SELECT orderID, usrID, restID, orderStatus FROM orders WHERE orderID=%s",
+			(order_id,),
+		)
+		if not order:
+			return jsonify({"error": "Order not found"}), 404
+		if order["orderStatus"] != "completed":
+			return jsonify({"error": "Can only review completed orders"}), 400
+
+		existing = query_one("SELECT reviewID FROM reviews WHERE orderID=%s", (order_id,))
+		if existing:
+			return jsonify({"error": "Order already reviewed"}), 409
+
+		review_id = execute(
+			"""
+			INSERT INTO reviews (orderID, usrID, restID, rating, reviewText)
+			VALUES (%s, %s, %s, %s, %s)
+			""",
+			(order_id, order["usrID"], order["restID"], rating, review_text),
+		)
+		return jsonify({
+			"reviewID": review_id,
+			"orderID": order_id,
+			"restID": order["restID"],
+			"rating": rating,
+			"reviewText": review_text,
+		}), 201
 
 	@app.route("/api/orders/<int:order_id>/cancel", methods=["POST"])
 	def cancel_order(order_id):

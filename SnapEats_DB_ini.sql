@@ -153,6 +153,30 @@ CREATE TABLE deliveries (
 );
 
 -- =====================================================
+--  REVIEWS
+--  One review per order; rating is 1..5
+-- =====================================================
+CREATE TABLE reviews (
+    reviewID INT AUTO_INCREMENT PRIMARY KEY,
+    orderID INT NOT NULL UNIQUE,
+    usrID INT NOT NULL,
+    restID INT NOT NULL,
+    rating TINYINT NOT NULL,
+    reviewText TEXT,
+    reviewTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_rating_range CHECK (rating BETWEEN 1 AND 5),
+    FOREIGN KEY (orderID) REFERENCES orders(orderID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (usrID) REFERENCES users(usrID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (restID) REFERENCES restaurants(restID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+-- =====================================================
 --  END OF SCHEMA
 -- =====================================================
 
@@ -271,10 +295,47 @@ JOIN restaurants r ON r.restID = m.restID AND r.restName = 'Seafood Bay'
 JOIN items i ON i.itemName IN ('Grilled Salmon','Shrimp Pasta','Lobster Tail','Seafood Chowder');
 
 -- =====================================================
+--  SEED ORDERS & REVIEWS
+--  Three completed orders for cust1 across different restaurants,
+--  with matching reviews so the UI has rating data on first boot.
+-- =====================================================
+INSERT INTO orders (usrID, restID, orderStatus)
+SELECT u.usrID, r.restID, 'completed'
+FROM users u
+JOIN restaurants r ON r.restName IN ('Sushi Zen','Pasta House','Burger Hub')
+WHERE u.emailAddr = 'cust1@example.com';
+
+INSERT INTO orderItems (orderID, itemID, quantity)
+SELECT o.orderID, i.itemID, 1
+FROM orders o
+JOIN restaurants r ON r.restID = o.restID
+JOIN menus m ON m.restID = r.restID
+JOIN menuItem mi ON mi.menuID = m.menuID
+JOIN items i ON i.itemID = mi.itemID
+WHERE o.orderStatus = 'completed'
+  AND ((r.restName='Sushi Zen' AND i.itemName='Salmon Nigiri')
+    OR (r.restName='Pasta House' AND i.itemName='Carbonara')
+    OR (r.restName='Burger Hub' AND i.itemName='Cheeseburger'));
+
+INSERT INTO reviews (orderID, usrID, restID, rating, reviewText)
+SELECT o.orderID, o.usrID, o.restID,
+       CASE r.restName WHEN 'Sushi Zen' THEN 5 WHEN 'Pasta House' THEN 4 WHEN 'Burger Hub' THEN 5 END,
+       CASE r.restName
+         WHEN 'Sushi Zen' THEN 'Salmon was super fresh. Will order again.'
+         WHEN 'Pasta House' THEN 'Carbonara was solid, a bit salty though.'
+         WHEN 'Burger Hub' THEN 'Best cheeseburger in the area!'
+       END
+FROM orders o
+JOIN restaurants r ON r.restID = o.restID
+WHERE o.orderStatus = 'completed'
+  AND r.restName IN ('Sushi Zen','Pasta House','Burger Hub');
+
+-- =====================================================
 --  STORED PROCEDURES
 --  Purpose:
---    sp_user_order_profit : per-user order totals and platform profit (10%)
---    sp_revenue_range     : revenue & profit by date range, optional restaurant
+--    sp_user_order_profit  : per-user order totals and platform profit (10%)
+--    sp_revenue_range      : revenue & profit by date range, optional restaurant
+--    sp_restaurant_rating  : avg rating and review count for a restaurant
 -- =====================================================
 DELIMITER //
 
@@ -315,6 +376,19 @@ BEGIN
     AND (pRestId IS NULL OR o.restID = pRestId)
     AND o.orderStatus <> 'cancelled'
   GROUP BY r.restName;
+END//
+
+DROP PROCEDURE IF EXISTS sp_restaurant_rating//
+CREATE PROCEDURE sp_restaurant_rating(IN pRestId INT)
+BEGIN
+  SELECT r.restID,
+         r.restName,
+         ROUND(AVG(rv.rating), 2) AS avgRating,
+         COUNT(rv.reviewID)       AS reviewCount
+  FROM restaurants r
+  LEFT JOIN reviews rv ON rv.restID = r.restID
+  WHERE r.restID = pRestId
+  GROUP BY r.restID, r.restName;
 END//
 
 DELIMITER ;

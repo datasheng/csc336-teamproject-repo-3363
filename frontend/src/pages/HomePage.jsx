@@ -97,6 +97,11 @@ export default function HomePage() {
               <img src={r.img} alt={r.name} />
               <div className="restaurant-text">
                 <h3>{r.name}</h3>
+                <p className="rating">
+                  {r.rating != null
+                    ? `⭐ ${r.rating.toFixed(1)} (${r.reviewCount})`
+                    : "⭐ No reviews yet"}
+                </p>
                 <p className="rating">📍 {r.loc}</p>
               </div>
             </div>
